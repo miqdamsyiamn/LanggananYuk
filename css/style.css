@@ -1,0 +1,43 @@
+/* Custom styles */
+.table th {
+    background-color: #f8f9fa;
+}
+
+.action-buttons .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Add some spacing between action buttons */
+.action-buttons .btn:not(:last-child) {
+    margin-right: 0.5rem;
+}
+
+/* Add hover effect on table rows */
+.table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Style for icons in buttons */
+.btn i {
+    margin-right: 0.25rem;
+}
+
+/* Navbar active link */
+.navbar-nav .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+    }
+}

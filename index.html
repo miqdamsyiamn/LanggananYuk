@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Subscription Manager</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Add Bootstrap CSS for a clean, modern look -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Add Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">ChatGPT Subscription Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="nav-kalkulator">
+                            <i class="bi bi-calculator"></i> Kalkulator
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="nav-anggota">
+                            <i class="bi bi-people"></i> Anggota
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="nav-pembayaran">
+                            <i class="bi bi-credit-card"></i> Pembayaran
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="nav-dashboard">
+                            <i class="bi bi-graph-up"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="nav-riwayat">
+                            <i class="bi bi-clock-history"></i> Riwayat
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Kalkulator Section -->
+        <div id="kalkulator-section">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0"><i class="bi bi-calculator"></i> Kalkulator Iuran</h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="kalkulator-form">
+                                <div class="mb-4">
+                                    <label for="jumlah-orang" class="form-label">Jumlah Orang</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-people"></i></span>
+                                        <input type="number" class="form-control" id="jumlah-orang" 
+                                               min="1" placeholder="Masukkan jumlah orang" required>
+                                    </div>
+                                    <div class="form-text text-muted">
+                                        Biaya langganan tetap: Rp 331.890/bulan
+                                    </div>
+                                </div>
+                                <div id="hasil-perhitungan">
+                                    <!-- Results will be displayed here -->
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Anggota Section -->
+        <div id="anggota-section" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-people"></i> Manajemen Anggota</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAnggotaModal">
+                    <i class="bi bi-plus-circle"></i> Tambah Anggota
+                </button>
+            </div>
+
+            <!-- Anggota Table -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Anggota</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="anggota-list">
+                        <!-- Anggota list will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pembayaran Section -->
+        <div id="pembayaran-section" style="display: none;">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-credit-card"></i> Pembayaran Bulanan</h4>
+                </div>
+                <div class="card-body">
+                    <form id="pembayaran-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Bulan Pembayaran</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                    <input type="month" class="form-control" id="bulan-pembayaran" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tanggal Bayar</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                                    <input type="date" class="form-control" id="tanggal-bayar" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Pilih Anggota</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <select class="form-select" id="anggota-pembayaran" required>
+                                        <option value="">Pilih anggota...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Jumlah Bayar</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" id="jumlah-bayar" 
+                                           min="0" step="1000" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="info-pembayaran" class="mb-3">
+                            <!-- Info pembayaran akan ditampilkan di sini -->
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Simpan Pembayaran
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabel Pembayaran Bulan Ini -->
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Daftar Pembayaran Bulan Ini</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Nama</th>
+                                    <th>Jumlah Bayar</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pembayaran-list">
+                                <!-- Data pembayaran akan ditampilkan di sini -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" style="display: none;">
+            <h2 class="mb-4"><i class="bi bi-graph-up"></i> Dashboard Pembayaran</h2>
+            
+            <!-- Status Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Total Terkumpul</h6>
+                            <h3 class="mb-0" id="total-terkumpul">Rp 0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <h6 class="card-title">Total Kekurangan</h6>
+                            <h3 class="mb-0" id="total-kekurangan">Rp 0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Total Kelebihan</h6>
+                            <h3 class="mb-0" id="total-kelebihan">Rp 0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Target Bulanan</h6>
+                            <h3 class="mb-0">Rp 331.890</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Table -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Status Pembayaran Anggota</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Harus Bayar</th>
+                                    <th>Sudah Bayar</th>
+                                    <th>Status</th>
+                                    <th>Kekurangan</th>
+                                    <th>Kelebihan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="status-list">
+                                <!-- Status pembayaran akan ditampilkan di sini -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Riwayat Section -->
+        <div id="riwayat-section" style="display: none;">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-clock-history"></i> Riwayat Pembayaran</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Pilih Bulan</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                <input type="month" class="form-control" id="riwayat-bulan">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Export Data</label>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary" id="export-pdf">
+                                    <i class="bi bi-file-pdf"></i> Export PDF
+                                </button>
+                                <button class="btn btn-outline-success" id="export-excel">
+                                    <i class="bi bi-file-excel"></i> Export Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Nama</th>
+                                    <th>Jumlah Bayar</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="riwayat-list">
+                                <!-- Riwayat pembayaran akan ditampilkan di sini -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Anggota Modal -->
+    <div class="modal fade" id="addAnggotaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Anggota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAnggotaForm">
+                        <div class="mb-3">
+                            <label for="nama" class="form-label">Nama Anggota</label>
+                            <input type="text" class="form-control" id="nama" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="saveAnggota">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Anggota Modal -->
+    <div class="modal fade" id="editAnggotaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Anggota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAnggotaForm">
+                        <input type="hidden" id="edit-id">
+                        <div class="mb-3">
+                            <label for="edit-nama" class="form-label">Nama Anggota</label>
+                            <input type="text" class="form-control" id="edit-nama" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="updateAnggota">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/kalkulator.js"></script>
+    <script src="js/anggota.js"></script>
+    <script src="js/pembayaran.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/riwayat.js"></script>
+    <script src="js/navigation.js"></script>
+</body>
+</html>

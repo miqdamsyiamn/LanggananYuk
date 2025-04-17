@@ -68,89 +68,155 @@ class RiwayatManager {
 
     // Export to PDF
     exportToPDF() {
-        const bulan = document.getElementById('riwayat-bulan').value;
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        try {
+            if (typeof window.jsPDF !== 'function') {
+                throw new Error('jsPDF library not properly initialized');
+            }
 
-        // Title
-        const monthName = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-        doc.setFontSize(16);
-        doc.text(`Laporan Pembayaran - ${monthName}`, 20, 20);
+            const bulan = document.getElementById('riwayat-bulan').value;
+            
+            // Create new jsPDF instance
+            const doc = new window.jsPDF();
 
-        // Prepare data
-        const pembayaranList = JSON.parse(localStorage.getItem(`pembayaran_${bulan}`) || '[]');
-        const anggotaList = JSON.parse(localStorage.getItem('anggota') || '[]');
-        
-        // Create table data
-        const tableData = pembayaranList.map(pembayaran => {
-            const anggota = anggotaList.find(a => a.id === pembayaran.anggotaId);
-            if (!anggota) return null;
+            // Title
+            const monthName = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            doc.setFontSize(16);
+            doc.text(`Laporan Pembayaran - ${monthName}`, 15, 20);
 
-            const totalBayar = this.calculateTotalBayarAnggota(pembayaran.anggotaId, bulan);
-            const perOrang = this.calculateIuranPerOrang(bulan);
-            const status = this.getStatusPembayaran(totalBayar, perOrang);
+            // Get data
+            const pembayaranList = JSON.parse(localStorage.getItem(`pembayaran_${bulan}`) || '[]');
+            const anggotaList = JSON.parse(localStorage.getItem('anggota') || '[]');
 
-            return [
-                this.formatDate(pembayaran.tanggalBayar),
-                anggota.nama,
-                `Rp ${this.formatRupiah(pembayaran.jumlahBayar)}`,
-                status.text
-            ];
-        }).filter(row => row !== null);
+            // Sort by date
+            pembayaranList.sort((a, b) => new Date(b.tanggalBayar) - new Date(a.tanggalBayar));
 
-        // Add table
-        doc.autoTable({
-            head: [['Tanggal', 'Nama', 'Jumlah Bayar', 'Status']],
-            body: tableData,
-            startY: 30,
-            styles: { fontSize: 10 },
-            headStyles: { fillColor: [41, 128, 185] }
-        });
+            // Prepare table data
+            const tableData = pembayaranList.map(pembayaran => {
+                const anggota = anggotaList.find(a => a.id === pembayaran.anggotaId);
+                if (!anggota) return null;
 
-        // Save PDF
-        doc.save(`Laporan_Pembayaran_${bulan}.pdf`);
-        alert('✅ PDF berhasil di-export!');
+                const totalBayar = this.calculateTotalBayarAnggota(pembayaran.anggotaId, bulan);
+                const perOrang = this.calculateIuranPerOrang(bulan);
+                const status = this.getStatusPembayaran(totalBayar, perOrang);
+
+                return [
+                    this.formatDate(pembayaran.tanggalBayar),
+                    anggota.nama,
+                    `Rp ${this.formatRupiah(pembayaran.jumlahBayar)}`,
+                    status.text
+                ];
+            }).filter(row => row !== null);
+
+            // Add table using autoTable
+            if (typeof doc.autoTable !== 'function') {
+                throw new Error('jsPDF autoTable plugin not loaded');
+            }
+
+            doc.autoTable({
+                head: [['Tanggal', 'Nama', 'Jumlah Bayar', 'Status']],
+                body: tableData,
+                startY: 30,
+                margin: { top: 25 },
+                theme: 'grid',
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 2,
+                    font: 'helvetica'
+                },
+                headStyles: {
+                    fillColor: [41, 128, 185],
+                    textColor: 255,
+                    fontSize: 10,
+                    fontStyle: 'bold',
+                    halign: 'center'
+                },
+                columnStyles: {
+                    0: { cellWidth: 45 },
+                    1: { cellWidth: 60 },
+                    2: { cellWidth: 45, halign: 'right' },
+                    3: { cellWidth: 30, halign: 'center' }
+                }
+            });
+
+            // Add footer
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text(
+                    `Dicetak pada: ${new Date().toLocaleDateString('id-ID', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}`,
+                    15,
+                    doc.internal.pageSize.height - 10
+                );
+                doc.text(
+                    `Halaman ${i} dari ${pageCount}`,
+                    doc.internal.pageSize.width - 30,
+                    doc.internal.pageSize.height - 10
+                );
+            }
+
+            // Save PDF
+            doc.save(`Laporan_Pembayaran_${bulan}.pdf`);
+            alert('✅ PDF berhasil di-export!');
+        } catch (error) {
+            console.error('Error exporting PDF:', error);
+            alert('❌ Gagal mengekspor PDF. Silakan coba lagi. Error: ' + error.message);
+        }
     }
 
     // Export to Excel
     exportToExcel() {
-        const bulan = document.getElementById('riwayat-bulan').value;
-        const pembayaranList = JSON.parse(localStorage.getItem(`pembayaran_${bulan}`) || '[]');
-        const anggotaList = JSON.parse(localStorage.getItem('anggota') || '[]');
+        try {
+            const bulan = document.getElementById('riwayat-bulan').value;
+            const pembayaranList = JSON.parse(localStorage.getItem(`pembayaran_${bulan}`) || '[]');
+            const anggotaList = JSON.parse(localStorage.getItem('anggota') || '[]');
 
-        // Prepare worksheet data
-        const wsData = [
-            ['Tanggal', 'Nama', 'Jumlah Bayar', 'Status'] // Header
-        ];
+            // Sort by date
+            pembayaranList.sort((a, b) => new Date(b.tanggalBayar) - new Date(a.tanggalBayar));
 
-        // Add data rows
-        pembayaranList.forEach(pembayaran => {
-            const anggota = anggotaList.find(a => a.id === pembayaran.anggotaId);
-            if (!anggota) return;
+            // Prepare worksheet data
+            const wsData = [
+                ['Tanggal', 'Nama', 'Jumlah Bayar', 'Status'] // Header
+            ];
 
-            const totalBayar = this.calculateTotalBayarAnggota(pembayaran.anggotaId, bulan);
-            const perOrang = this.calculateIuranPerOrang(bulan);
-            const status = this.getStatusPembayaran(totalBayar, perOrang);
+            // Add data rows
+            pembayaranList.forEach(pembayaran => {
+                const anggota = anggotaList.find(a => a.id === pembayaran.anggotaId);
+                if (!anggota) return;
 
-            wsData.push([
-                this.formatDate(pembayaran.tanggalBayar),
-                anggota.nama,
-                pembayaran.jumlahBayar,
-                status.text
-            ]);
-        });
+                const totalBayar = this.calculateTotalBayarAnggota(pembayaran.anggotaId, bulan);
+                const perOrang = this.calculateIuranPerOrang(bulan);
+                const status = this.getStatusPembayaran(totalBayar, perOrang);
 
-        // Create workbook
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
+                wsData.push([
+                    this.formatDate(pembayaran.tanggalBayar),
+                    anggota.nama,
+                    pembayaran.jumlahBayar,
+                    status.text
+                ]);
+            });
 
-        // Add worksheet to workbook
-        XLSX.utils.book_append_sheet(wb, ws, 'Pembayaran');
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-        // Save Excel file
-        const monthName = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-        XLSX.writeFile(wb, `Laporan_Pembayaran_${bulan}.xlsx`);
-        alert('✅ Excel berhasil di-export!');
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Pembayaran');
+
+            // Save Excel file
+            const monthName = new Date(bulan + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            XLSX.writeFile(wb, `Laporan_Pembayaran_${bulan}.xlsx`);
+            alert('✅ Excel berhasil di-export!');
+        } catch (error) {
+            console.error('Error exporting Excel:', error);
+            alert('❌ Gagal mengekspor Excel. Silakan coba lagi.');
+        }
     }
 
     // Calculate total payment for a member in a month
